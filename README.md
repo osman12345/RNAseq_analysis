@@ -1,5 +1,7 @@
 # RNAseq Differential Expression Analysis Shiny App
 
+https://vvr6z0-ayman-osman.shinyapps.io/rnaseq_analysis/
+
 This Shiny app performs RNAseq differential expression analysis using **edgeR** and **limma**. It allows users to upload count data and sample metadata, choose an annotation package to map gene symbols to ENTREZ IDs, and then run the analysis. The app generates diagnostic plots and tables for visualization and lets users download the differential expression results.
 
 ## Features
