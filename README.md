@@ -1,28 +1,56 @@
-# RNAseq_analysis
-# edgeR & limma Differential Expression Analysis Shiny App
+# RNAseq Differential Expression Analysis Shiny App
 
-This Shiny app performs RNA-seq differential expression analysis using the edgeR and limma packages. The app allows users to upload count data and sample information, run the analysis (including data filtering, normalization, voom transformation, and model fitting), and interactively view diagnostic plots and differential expression results for multiple contrasts.
+This Shiny app performs RNAseq differential expression analysis using **edgeR** and **limma**. It allows users to upload count data and sample metadata, choose an annotation package to map gene symbols to ENTREZ IDs, and then run the analysis. The app generates diagnostic plots and tables for visualization and lets users download the differential expression results.
 
 ## Features
 
-- **Data Upload:** Upload CSV files for count data and sample metadata.
-- **Data Processing:** Uses edgeR for data normalization and filtering and limma's voom transformation for modeling.
-- **Contrast Selection:** Includes pairwise comparisons (Treated vs Control, Placebo vs Control, Treated vs Placebo) and an overall F-test (omnibus test) for the three groups.
-- **Interactive Visualizations:** Displays library sizes, MD plots, boxplots, MDS plots, and heatmaps.
-- **Results Download:** Download differential expression results for the selected contrast.
+- **Data Upload:**  
+  Upload CSV files for:
+  - **Count Data:** Genes as rows and samples as columns (the first column contains gene symbols).
+  - **Sample Metadata:** Must include a `Condition` column (e.g., "Control", "HF_Placebo", "HF_Treated").
+
+- **Annotation Package Selection:**  
+  Choose from multiple annotation packages:
+  - Human (`org.Hs.eg.db`)
+  - Mouse (`org.Mm.eg.db`)
+  - Rat (`org.Rn.eg.db`)
+  - Pig (`org.Ss.eg.db`)
+
+- **Data Processing:**  
+  - Filtering of low-expressed genes using **edgeR**.
+  - Normalization of count data.
+  - Voom transformation with quality weights.
+  - Linear modeling and contrast definition using **limma**.
+
+- **Differential Expression Analysis:**  
+  The app defines contrasts (e.g., Treated vs Control, Placebo vs Control, Treated vs Placebo) and outputs the differentially expressed genes (DEG) for further investigation.
+
+- **Diagnostic Plots:**  
+  - Library sizes
+  - MD plot
+  - Boxplots (unnormalized and normalized logCPM)
+  - MDS plot
+  - Heatmap of top variable genes
+
+- **Results Download:**  
+  Download the DEG table as a CSV file.
 
 ## Requirements
 
-- **R (version 3.6 or later recommended)**
+- **R** (version 3.6 or later recommended)
+
 - **R Packages:**
   - [shiny](https://cran.r-project.org/package=shiny)
   - [edgeR](https://bioconductor.org/packages/edgeR/)
   - [limma](https://bioconductor.org/packages/limma/)
-  - [org.Ss.eg.db](https://bioconductor.org/packages/org.Ss.eg.db/) *(for annotation)*
+  - [AnnotationDbi](https://bioconductor.org/packages/AnnotationDbi/)
+  - [org.Hs.eg.db](https://bioconductor.org/packages/org.Hs.eg.db/)
+  - [org.Mm.eg.db](https://bioconductor.org/packages/org.Mm.eg.db/)
+  - [org.Rn.eg.db](https://bioconductor.org/packages/org.Rn.eg.db/)
+  - [org.Ss.eg.db](https://bioconductor.org/packages/org.Ss.eg.db/)
   - [RColorBrewer](https://cran.r-project.org/package=RColorBrewer)
   - [gplots](https://cran.r-project.org/package=gplots)
   - [tidyverse](https://www.tidyverse.org/)
-  - [AnnotationDbi](https://bioconductor.org/packages/AnnotationDbi/)
 
 ## Installation
 
@@ -31,4 +59,28 @@ This Shiny app performs RNA-seq differential expression analysis using the edgeR
    ```bash
    git clone https://github.com/yourusername/your-repo-name.git
    cd your-repo-name
+
+## Install Required Packages:
+Open R or RStudio and run:
+install.packages(c("shiny", "RColorBrewer", "gplots", "tidyverse"))
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(c("edgeR", "limma", "AnnotationDbi", 
+                         "org.Hs.eg.db", "org.Mm.eg.db", 
+                         "org.Rn.eg.db", "org.Ss.eg.db"))
+## Data Requirements
+** Count Data File:
+A CSV file containing the gene expression counts.
+Format:
+
+- Rows: Genes (the first column contains gene symbols).
+- Columns: Samples (each column header represents a sample).
+** Sample Information File:
+A CSV file containing sample metadata.
+Format:
+- Must include a column named Condition.
+- Example values: "Control", "HF_Placebo", "HF_Treated".
+## License
+This project is licensed under the [MIT License](https://opensource.org/license/mit). 
+
 
