@@ -57,8 +57,8 @@ This Shiny app performs RNAseq differential expression analysis using **edgeR** 
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/osman12345/RNAseq_analysis.git
+   cd RNAseq_analysis
 
 ## Install Required Packages:
 Open R or RStudio and run:
