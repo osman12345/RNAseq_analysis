@@ -3,11 +3,16 @@
 library(shiny)
 library(edgeR)
 library(limma)
-library(org.Ss.eg.db)
 library(RColorBrewer)
 library(gplots)
 library(tidyverse)
 library(AnnotationDbi)
+
+# Load available annotation packages
+library(org.Hs.eg.db)  # Human
+library(org.Mm.eg.db)  # Mouse
+library(org.Rn.eg.db)  # Rat
+library(org.Ss.eg.db)  # Pig (Sus scrofa)
 
 ui <- fluidPage(
     titlePanel("RNAseq Differential Expression Analysis"),
@@ -16,6 +21,13 @@ ui <- fluidPage(
             helpText("Upload your count data and sample information files (CSV format)."),
             fileInput("countsFile", "Choose Count Data CSV File", accept = ".csv"),
             fileInput("sampleFile", "Choose Sample Info CSV File", accept = ".csv"),
+            # New: Select annotation package
+            selectInput("annotationPkg", "Species:",
+                        choices = c("Human (org.Hs.eg.db)" = "org.Hs.eg.db",
+                                    "Mouse (org.Mm.eg.db)" = "org.Mm.eg.db",
+                                    "Rat (org.Rn.eg.db)" = "org.Rn.eg.db",
+                                    "Pig (org.Ss.eg.db)" = "org.Ss.eg.db"),
+                        selected = "org.Ss.eg.db"),
             actionButton("run", "Run Analysis"),
             hr(),
             downloadButton("downloadDEG", "Download DEG Table")
@@ -73,10 +85,18 @@ server <- function(input, output, session) {
         # Create DGEList object (group is based on condition)
         dge <- DGEList(counts = seqdata, group = condition, remove.zeros = FALSE)
         
-        # Annotation: Map gene SYMBOLs to ENTREZ IDs
-        ENTREZID <- mapIds(org.Ss.eg.db, rownames(dge$counts), keytype = "SYMBOL", column = "ENTREZID")
+        ## Annotation: Use the selected annotation package
+        annPkgName <- input$annotationPkg
+        annPkg <- switch(annPkgName,
+                         "org.Hs.eg.db" = org.Hs.eg.db,
+                         "org.Mm.eg.db" = org.Mm.eg.db,
+                         "org.Rn.eg.db" = org.Rn.eg.db,
+                         "org.Ss.eg.db" = org.Ss.eg.db)
+        
+        # Map gene SYMBOLs to ENTREZ IDs using the chosen package
+        ENTREZID <- mapIds(annPkg, rownames(dge$counts), keytype = "SYMBOL", column = "ENTREZID")
         rownames(dge$counts) <- ENTREZID
-        ann <- AnnotationDbi::select(org.Ss.eg.db, keys = rownames(dge$counts),
+        ann <- AnnotationDbi::select(annPkg, keys = rownames(dge$counts),
                                      columns = c("ENTREZID", "SYMBOL", "GENENAME"))
         dge$genes <- ann
         
@@ -114,20 +134,12 @@ server <- function(input, output, session) {
         fullFit <- topTable(vfit, number = Inf, sort.by = "none")
         
         # Prepare diagnostic objects:
-        # Library sizes (in millions)
-        libSizes <- dge$samples$lib.size / 1e6
+        libSizes <- dge$samples$lib.size / 1e6   # Library sizes (in millions)
+        mdPlotData <- list(vfit = vfit, dt = decideTests(vfit))  # For MD plot
+        logCPM_unnorm <- cpm(dge, log = TRUE)       # Unnormalized logCPM
+        logCPM_norm   <- cpm(dge, log = TRUE, normalized.lib.sizes = TRUE)  # Normalized logCPM
+        pseudoCounts <- log2(dge$counts + 1)        # For MDS plot
         
-        # MD Plot: We'll use the first sample as an example
-        mdPlotData <- list(vfit = vfit, dt = decideTests(vfit))
-        
-        # Boxplots: Unnormalized and normalized logCPM
-        logCPM_unnorm <- cpm(dge, log = TRUE)
-        logCPM_norm   <- cpm(dge, log = TRUE, normalized.lib.sizes = TRUE)
-        
-        # MDS Plot: Use pseudoCounts (log2(counts + 1))
-        pseudoCounts <- log2(dge$counts + 1)
-        
-        # Heatmap: Top 100 most variable genes based on normalized logCPM
         logCPM_all <- cpm(dge, log = TRUE)
         var_genes <- apply(logCPM_all, 1, var)
         select_var <- names(sort(var_genes, decreasing = TRUE))[1:min(100, length(var_genes))]
