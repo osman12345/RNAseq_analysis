@@ -7,7 +7,7 @@ This Shiny app performs RNAseq differential expression analysis using **edgeR** 
 - **Data Upload:**  
   Upload CSV files for:
   - **Count Data:** Genes as rows and samples as columns (the first column contains gene symbols).
-  - **Sample Metadata:** Must include a `Condition` column (e.g., "Control", "HF_Placebo", "HF_Treated").
+  - **Sample Metadata:** Must include a `Condition` column (e.g., "Control", "Treated").
 
 - **Annotation Package Selection:**  
   Choose from multiple annotation packages:
@@ -23,7 +23,7 @@ This Shiny app performs RNAseq differential expression analysis using **edgeR** 
   - Linear modeling and contrast definition using **limma**.
 
 - **Differential Expression Analysis:**  
-  The app defines contrasts (e.g., Treated vs Control, Placebo vs Control, Treated vs Placebo) and outputs the differentially expressed genes (DEG) for further investigation.
+  The app defines contrasts (e.g., Treated vs Control) and outputs the differentially expressed genes (DEG) for further investigation.
 
 - **Diagnostic Plots:**  
   - Library sizes
@@ -79,7 +79,7 @@ Format:
 A CSV file containing sample metadata.
 Format:
 - Must include a column named Condition.
-- Example values: "Control", "HF_Placebo", "HF_Treated".
+- Example values: "Control", "Treated".
 ## License
 This project is licensed under the [MIT License](https://opensource.org/license/mit). 
 
